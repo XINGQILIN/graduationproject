@@ -1,0 +1,90 @@
+-- ----------------------------
+-- 用户表 (user)
+-- ----------------------------
+INSERT INTO `user` (`user_id`, `username`, `password`, `email`, `role`) VALUES
+(1001, 'admin', 'admin123', 'admin@example.com', 'admin'),
+(1002, 'user1', 'user1123', 'user1@example.com', 'user'),
+(1003, 'user2', 'user2123', 'user2@example.com', 'user');
+
+-- ----------------------------
+-- 个人信息表 (personal_info)
+-- ----------------------------
+INSERT INTO `personal_info` (`info_id`, `user_id`, `real_name`, `phone`, `address`, `bio`) VALUES
+(2001, 1001, '张伟', '13800138001', '北京市朝阳区', '系统管理员'),
+(2002, 1002, '李娜', '13900139002', '上海市浦东新区', '游戏爱好者'),
+(2003, 1003, '王强', '13600136003', '广州市天河区', '新手玩家');
+
+-- ----------------------------
+-- 游戏分类表 (game_category)
+-- ----------------------------
+INSERT INTO `game_category` (`category_id`, `name`, `description`) VALUES
+(3001, '动作游戏', '快节奏战斗类游戏'),
+(3002, '角色扮演', '沉浸式剧情体验'),
+(3003, '策略游戏', '考验战术与决策');
+
+-- ----------------------------
+-- 游戏信息表 (game)
+-- ----------------------------
+INSERT INTO `game` (`game_id`, `category_id`, `admin_id`, `title`, `price`, `cover_image`, `description`, `game_package`, `status`) VALUES
+(4001, 3001, 1001, '暗影之刃', 98.00, 'oss://your-bucket/game-cover/shadow_blade.jpg', '忍者题材动作游戏', 'oss://your-bucket/game-package/shadow_blade.zip', 'online'),
+(4002, 3002, 1001, '星辰传说', 128.00, 'oss://your-bucket/game-cover/stars_legend.jpg', '开放世界RPG', 'oss://your-bucket/game-package/stars_legend.zip', 'online'),
+(4003, 3003, 1001, '帝国霸业', 88.00, 'oss://your-bucket/game-cover/empire.jpg', '中世纪战略游戏', 'oss://your-bucket/game-package/empire.zip', 'offline');
+
+-- ----------------------------
+-- 订单表 (order)
+-- ----------------------------
+INSERT INTO `order` (`order_id`, `user_id`, `game_id`, `amount`, `status`) VALUES
+(5001, 1002, 4001, 98.00, 'completed'),
+(5002, 1003, 4002, 128.00, 'pending'),
+(5003, 1002, 4003, 88.00, 'refunded');
+
+-- ----------------------------
+-- 退款记录表 (refund)
+-- ----------------------------
+-- ----------------------------
+-- 退款记录表 (refund)
+-- ----------------------------
+INSERT INTO `refund` (`refund_id`, `user_id`, `order_id`, `reason`, `status`, `admin_id`, `admin_remark`) VALUES
+(6001, 1002, 5001, '游戏卡顿严重，无法正常游玩', 'approved', 1001, '已核实问题，同意退款'),
+(6002, 1003, 5002, '误购游戏，申请取消订单', 'rejected', 1001, '订单尚未完成，无法退款'),
+(6003, 1002, 5003, '游戏内容与描述不符', 'pending', NULL, NULL);
+
+-- ----------------------------
+-- 评论表 (comment)
+-- ----------------------------
+INSERT INTO `comment` (`comment_id`, `user_id`, `game_id`, `content`, `status`) VALUES
+(7001, 1002, 4001, '打击感超棒！', 'approved'),
+(7002, 1003, 4002, '剧情有点老套', 'pending'),
+(7003, 1002, 4003, 'AI太弱了', 'rejected');
+
+-- ----------------------------
+-- 收藏表 (favorite)
+-- ----------------------------
+INSERT INTO `favorite` (`favorite_id`, `user_id`, `game_id`) VALUES
+(8001, 1002, 4001),
+(8002, 1003, 4002),
+(8003, 1002, 4003);
+
+-- ----------------------------
+-- 购物车表 (cart)
+-- ----------------------------
+INSERT INTO `cart` (`cart_id`, `user_id`, `game_id`) VALUES
+(9001, 1003, 4001),
+(9002, 1003, 4003),
+(9003, 1002, 4002);
+
+-- ----------------------------
+-- 公告表 (announcement)
+-- ----------------------------
+INSERT INTO `announcement` (`announce_id`, `admin_id`, `title`, `content`) VALUES
+(10001, 1001, '服务器维护通知', '本周末将进行系统升级，预计停机2小时'),
+(10002, 1001, '新游戏上线', '《暗影之刃》现已发售！'),
+(10003, 1001, '春节活动预告', '登录即送限定皮肤');
+
+-- ----------------------------
+-- 轮播图表 (carousel)
+-- ----------------------------
+INSERT INTO `carousel` (`carousel_id`, `admin_id`, `image_url`, `link_game_id`) VALUES
+(11001, 1001, 'oss://your-bucket/carousel/banner1.jpg', 4001),
+(11002, 1001, 'oss://your-bucket/carousel/banner2.jpg', 4002),
+(11003, 1001, 'oss://your-bucket/carousel/banner3.jpg', 4003);

@@ -1,0 +1,141 @@
+-- 用户表 (user)
+CREATE TABLE `user` (
+    `user_id` BIGINT UNSIGNED PRIMARY KEY COMMENT '主键ID',
+    `username` VARCHAR(50) NOT NULL COMMENT '用户名',
+    `password` VARCHAR(100) NOT NULL COMMENT '密码',
+    `email` VARCHAR(100) NOT NULL COMMENT '邮箱',
+    `role` ENUM('user', 'admin') NOT NULL DEFAULT 'user' COMMENT '用户角色',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 个人信息表 (personal_info)
+CREATE TABLE `personal_info` (
+    `info_id` BIGINT UNSIGNED PRIMARY KEY COMMENT '主键ID',
+    `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+    `real_name` VARCHAR(50) DEFAULT '' COMMENT '真实姓名',
+    `phone` VARCHAR(20) DEFAULT '' COMMENT '联系电话',
+    `address` VARCHAR(200) DEFAULT '' COMMENT '地址',
+    `avatar` VARCHAR(255) DEFAULT 'oss://your-bucket/default_avatar.png' COMMENT '头像OSS存储路径',
+    `bio` VARCHAR(200) COMMENT '个性签名（200字符以内）',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`),
+    KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 游戏分类表 (game_category)
+CREATE TABLE `game_category` (
+    `category_id` BIGINT UNSIGNED PRIMARY KEY COMMENT '主键ID',
+    `name` VARCHAR(50) NOT NULL COMMENT '分类名称',
+    `description` TEXT COMMENT '分类描述',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 游戏信息表 (game)
+CREATE TABLE `game` (
+    `game_id` BIGINT UNSIGNED PRIMARY KEY COMMENT '主键ID',
+    `category_id` BIGINT UNSIGNED NOT NULL COMMENT '分类ID',
+    `admin_id` BIGINT UNSIGNED NOT NULL COMMENT '上传管理员ID',
+    `title` VARCHAR(100) NOT NULL COMMENT '游戏标题',
+    `price` DECIMAL(10,2) NOT NULL COMMENT '价格',
+    `cover_image` VARCHAR(255) DEFAULT 'oss://your-bucket/game-cover/default_cover.png' COMMENT '封面图OSS路径',
+    `description` TEXT COMMENT '游戏详情描述',
+    `game_package` VARCHAR(255) COMMENT '游戏压缩包OSS路径',
+    `status` ENUM('online', 'offline') NOT NULL DEFAULT 'offline' COMMENT '上下架状态',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (`category_id`) REFERENCES `game_category`(`category_id`),
+    FOREIGN KEY (`admin_id`) REFERENCES `user`(`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 订单表 (order)
+CREATE TABLE `order` (
+    `order_id` BIGINT UNSIGNED PRIMARY KEY COMMENT '主键ID',
+    `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+    `game_id` BIGINT UNSIGNED NOT NULL COMMENT '游戏ID',
+    `amount` DECIMAL(10,2) NOT NULL COMMENT '订单金额',
+    `status` ENUM('pending', 'completed', 'refunded') NOT NULL DEFAULT 'pending' COMMENT '订单状态',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`),
+    FOREIGN KEY (`game_id`) REFERENCES `game`(`game_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 退款记录表 (refund)
+CREATE TABLE `refund` (
+                          `refund_id` BIGINT UNSIGNED PRIMARY KEY,
+                          `user_id` BIGINT UNSIGNED NOT NULL,      -- 用户ID
+                          `order_id` BIGINT UNSIGNED NOT NULL,     -- 订单ID
+                          `reason` VARCHAR(500) NOT NULL,          -- 退款原因
+                          `status` ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',  -- 状态
+                          `admin_id` BIGINT UNSIGNED COMMENT '处理管理员ID',
+                          `admin_remark` VARCHAR(500) COMMENT '管理员备注',
+                          `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+                          `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                          FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`),
+                          FOREIGN KEY (`order_id`) REFERENCES `order`(`order_id`),
+                          FOREIGN KEY (`admin_id`) REFERENCES `user`(`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 评论表 (comment)
+CREATE TABLE `comment` (
+    `comment_id` BIGINT UNSIGNED PRIMARY KEY COMMENT '主键ID',
+    `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+    `game_id` BIGINT UNSIGNED NOT NULL COMMENT '游戏ID',
+    `content` TEXT NOT NULL COMMENT '评论内容',
+    `status` ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending' COMMENT '审核状态',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`),
+    FOREIGN KEY (`game_id`) REFERENCES `game`(`game_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 收藏表 (favorite)
+CREATE TABLE `favorite` (
+    `favorite_id` BIGINT UNSIGNED PRIMARY KEY COMMENT '主键ID',
+    `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+    `game_id` BIGINT UNSIGNED NOT NULL COMMENT '游戏ID',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`),
+    FOREIGN KEY (`game_id`) REFERENCES `game`(`game_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+-- 购物车表 (cart)
+CREATE TABLE `cart` (
+    `cart_id` BIGINT UNSIGNED PRIMARY KEY COMMENT '主键ID',
+    `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+    `game_id` BIGINT UNSIGNED NOT NULL COMMENT '游戏ID',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`),
+    FOREIGN KEY (`game_id`) REFERENCES `game`(`game_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 公告表 (announcement)
+CREATE TABLE `announcement` (
+    `announce_id` BIGINT UNSIGNED PRIMARY KEY COMMENT '主键ID',
+    `admin_id` BIGINT UNSIGNED NOT NULL COMMENT '管理员ID',
+    `title` VARCHAR(100) NOT NULL COMMENT '公告标题',
+    `content` TEXT NOT NULL COMMENT '公告内容',
+    `publish_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (`admin_id`) REFERENCES `user`(`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 轮播图表 (carousel)
+CREATE TABLE `carousel` (
+    `carousel_id` BIGINT UNSIGNED PRIMARY KEY COMMENT '主键ID',
+    `admin_id` BIGINT UNSIGNED NOT NULL COMMENT '管理员ID',
+    `image_url` VARCHAR(200) NOT NULL COMMENT '图片地址',
+    `link_game_id` BIGINT UNSIGNED NOT NULL COMMENT '关联游戏ID',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (`admin_id`) REFERENCES `user`(`user_id`),
+    FOREIGN KEY (`link_game_id`) REFERENCES `game`(`game_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
