@@ -1,0 +1,60 @@
+@import './base.css';
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    padding: 0;
+    width: 100%;
+  }
+}
+
+/* 重置一些Element Plus的默认样式 */
+.el-container {
+  height: 100%;
+  width: 100%;
+}
+
+.el-aside {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.el-main {
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 100%;
+}

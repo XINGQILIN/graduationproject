@@ -1,0 +1,23 @@
+/* 兼容性修复 */
+
+/* 添加appearance属性支持 */
+[style*="-moz-appearance"] {
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+}
+
+/* 添加user-select属性支持 */
+[style*="user-select"] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* 添加width:stretch支持 */
+[style*="width: stretch"] {
+  width: -webkit-fill-available;
+  width: -moz-available;
+  width: stretch;
+} 
